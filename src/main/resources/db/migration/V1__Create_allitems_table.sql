@@ -1,0 +1,9 @@
+create TABLE AllItems(
+    ID int not null AUTO_INCREMENT,
+    BARCODE VARCHAR(200),
+    NAME VARCHAR(200),
+    UNIT VARCHAR(200),
+    PRICE FLOAT,
+    PRIMARY KEY (ID)
+);
+
