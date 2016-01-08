@@ -18,4 +18,7 @@
     <select id="findAllitem" resultMap="AllitemMapper">
         select * from AllItems
     </select>
+    <select id="getItemInfo" resultMap="AllitemMapper">
+        select * from AllItems where AllItems.BARCODE = #{barcode}
+    </select>
 </mapper>

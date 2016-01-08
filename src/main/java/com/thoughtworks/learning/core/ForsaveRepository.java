@@ -11,6 +11,6 @@ public interface ForsaveRepository {
 //
 //    void createItemp(Map newInstance);
 
-  //  Group getGroupById(int id);
+    Forsave getPromoInfo(String info);
     
 }

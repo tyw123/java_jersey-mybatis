@@ -16,4 +16,7 @@
     <select id="findForsave" resultMap="ForsaveMapper">
         select * from ForSave
     </select>
+    <select id="getPromoInfo" resultMap="ForsaveMapper">
+        select * from ForSave where ForSave.BARCODE = #{info}
+    </select>
 </mapper>

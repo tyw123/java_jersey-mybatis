@@ -11,6 +11,6 @@ public interface AllitemRepository {
 //
 //    void createItemp(Map newInstance);
 
-  //  Group getGroupById(int id);
+    Allitem getItemInfo(String barcode);
     
 }

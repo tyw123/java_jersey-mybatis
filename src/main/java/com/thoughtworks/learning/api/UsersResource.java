@@ -103,33 +103,81 @@ public class UsersResource {
 
         return Response.status(200).entity(userBean).build();
     }
-//    @Path("/")
-//    @POST
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response create(@FormParam("name") String name){
-//        Map result = new HashMap();
-//        Map newInstanceBean = new HashMap();
-//        newInstanceBean.put("name", name);
-//
-//         userRepository.createUser(newInstanceBean);
-//
-//        result.put("uri", "/users/"+newInstanceBean.get("id"));
-//        result.put("name",newInstanceBean.get("name"));
-//
-//
-//
-//        return Response.status(201).entity(result).build();
-//    }
-    
-//    @Path("/{userId}")
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response getById(@PathParam("userId") int userId, @Context SecurityContext context){
-//        System.out.println(userId);
-//        Map result = new HashMap();
-//        User instance = userRepository.getUserById(userId);
-//        result.put("uri", "/users/"+userId);
-//        result.put("name", instance.getName());
-//        return Response.status(200).entity(result).build();//打印失败，不明原因
-//    }
+    @Path("/receipt")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+";charset=utf-8")
+    public Response getreceipt(){
+        List<Itemp> itemInput = ItempRepository.findItemp();
+        HashMap result=new HashMap();
+        float total=0;
+        float saved=0;
+      //  List<Map> item_final=new ArrayList();
+        ArrayList  itemFinal=new ArrayList();
+        ArrayList  giftFinal=new ArrayList();
+        List<ArrayList> items=new ArrayList();
+        for(int i=0;i<itemInput.size();i++){//输入itemp字符处理--取出barcode和num
+            ArrayList  item=new ArrayList();
+            String [] ars =itemInput.get(i).getInfo().split("-");
+            int num = Integer.parseInt(ars[1]);
+            item.add(ars[0]);
+            item.add(num);
+            if(items.size()==0){ //合并同类项,获得输入的barcode和数量
+                items.add(item);
+            }else{
+                int flag=0;
+                for(int j=0;j<items.size();j++){
+                    // System.out.print(items.get(j).get(1).getClass().getName()+"\n");
+                    if(ars[0].equals(items.get(j).get(0))){
+                        int add= (int) items.get(j).get(1);
+                        items.get(j).set(1,add+num);
+                        flag=1;
+                    }
+                }
+                if(flag==0){items.add(item);}
+            }
+        }
+
+        //取出对应的商品信息
+        for(int i=0;i<items.size();i++){
+            HashMap item=new HashMap();
+            HashMap gift=new HashMap();
+            //查找
+            String itemBarcode= (String) items.get(i).get(0);
+            Allitem itemSearch = AllitemRepository.getItemInfo(itemBarcode);
+
+
+            item.put("barcode",itemBarcode);
+            item.put("name",itemSearch.getName());
+            item.put("price",itemSearch.getPrice());
+            item.put("unit",itemSearch.getUnit());
+            item.put("num",items.get(i).get(1));
+            int num= (int) items.get(i).get(1);
+            float money=itemSearch.getPrice()*num;
+            item.put("total",money);
+           // System.out.print(item+"\n");
+            total+=money;
+            gift.put("barcode",itemBarcode);
+            gift.put("name",itemSearch.getName());
+            gift.put("price",itemSearch.getPrice());
+            gift.put("unit",itemSearch.getUnit());
+            Forsave promoSearch=ForsaveRepository.getPromoInfo(itemBarcode);
+            if(promoSearch!=null){
+                int promoNum=num/3;
+                gift.put("num",promoNum);
+                saved+=itemSearch.getPrice()*promoNum;
+            }else{
+                gift.put("num",0);
+            }
+            itemFinal.add(item);
+            giftFinal.add(gift);
+         //   System.out.print(gift);
+        }
+        result.put("total", total);
+        result.put("saved", saved);
+        result.put("item", itemFinal);
+        result.put("gift", giftFinal);
+      //  System.out.print(items.size());
+        return Response.status(200).entity(result).build();
+    }
+
 }
